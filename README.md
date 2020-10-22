@@ -6,6 +6,7 @@ We only use simple package to study basic knowledge, includes:
 
 1. net/http
 2. jackc/pgx
+3. julienschmidt/httprouter
 
 In golang, 
 - Don't use MVC. Instead, split your code into different services.

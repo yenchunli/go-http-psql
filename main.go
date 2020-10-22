@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/go-http-psql/pkg/user"
+	"github.com/go-http-psql/pkg/post"
 	"log"
 	"github.com/jackc/pgx/v4"
 	"os"
 	"context"
+	"github.com/julienschmidt/httprouter"
 )
 
 func main() {
@@ -21,14 +23,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create User Service
+	// Create Service
 	user_svc := user.NewService(conn)
+	post_svc := post.NewService(conn)
 
 	fmt.Println("===Server Start===")
 
-	http.HandleFunc("/login", user_svc.Login)
+	router := httprouter.New()
 
-	http_err := http.ListenAndServe(":9090", nil)
+	router.POST("/api/v1/login", user_svc.Login)
+	router.GET("/api/v1/login", user_svc.Logout)
+
+	router.GET("/api/v1/posts", post_svc.ShowPosts)
+	router.GET("/api/v1/posts/:id", post_svc.ShowPostById)
+	router.POST("/api/v1/posts", post_svc.CreatePost)
+	router.PUT("/api/v1/posts/:id", post_svc.EditPost)
+	router.DELETE("/api/v1/posts/:id", post_svc.DeletePost)
+
+	http_err := http.ListenAndServe(":9090", router)
 
 	if http_err != nil{
 		log.Fatal("Error")
